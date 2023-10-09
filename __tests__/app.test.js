@@ -170,3 +170,89 @@ describe("GET /api/articles/:article_id/comments", () => {
       });
   });
 });
+
+describe("POST /api/articles/article:id/comments", () => {
+  test("should return a 201 and posted comment", () => {
+    const newComment = { username: "butter_bridge", body: "let's goooooo!" };
+    return request(app)
+      .post("/api/articles/1/comments")
+      .send(newComment)
+      .expect(201)
+      .then(({ body }) => {
+        expect(body.newComment).toEqual(
+          expect.objectContaining({
+            comment_id: expect.any(Number),
+            votes: expect.any(Number),
+            created_at: expect.any(String),
+            author: "butter_bridge",
+            body: "let's goooooo!",
+            article_id: expect.any(Number),
+          })
+        );
+      });
+  });
+
+  test("should return a 201 and posted comment ignoring unneeded properties", () => {
+    const newComment = {
+      username: "butter_bridge",
+      body: "whoop!",
+      date: "NOW!!",
+    };
+    return request(app)
+      .post("/api/articles/1/comments")
+      .send(newComment)
+      .expect(201)
+      .then(({ body }) => {
+        expect(body.newComment).toEqual(
+          expect.objectContaining({
+            comment_id: expect.any(Number),
+            votes: expect.any(Number),
+            created_at: expect.any(String),
+            author: "butter_bridge",
+            body: "whoop!",
+            article_id: expect.any(Number),
+          })
+        );
+      });
+  });
+  test("should return a 404 if non-existant id used", () => {
+    const newComment = { username: "butter_bridge", body: "let's goooooo!" };
+    return request(app)
+      .post("/api/articles/9090909/comments")
+      .send(newComment)
+      .expect(404)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Path not found");
+      });
+  });
+  test("should return a 400 if an invalid id used", () => {
+    const newComment = { username: "butter_bridge", body: "let's goooooo!" };
+    return request(app)
+      .post("/api/articles/banana/comments")
+      .send(newComment)
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Bad Request");
+      });
+  });
+  test("should return a 400 if missing field", () => {
+    const newComment = { username: "butter_bridge" };
+    return request(app)
+      .post("/api/articles/1/comments")
+      .send(newComment)
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Bad Request");
+      });
+  });
+  test("should return a 404 if an invalid username used", () => {
+    const newComment = { username: "pippa", body: "let's goooooo!" };
+    return request(app)
+      .post("/api/articles/1/comments")
+      .send(newComment)
+      .expect(404)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Path not found");
+      });
+  });
+});
