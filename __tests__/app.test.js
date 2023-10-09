@@ -90,3 +90,37 @@ describe("GET api/articles/:article_id", () => {
       });
   });
 });
+
+describe("GET /api/articles", () => {
+  test("should return a 200 and list of the articles ", () => {
+    return request(app)
+      .get("/api/articles")
+      .expect(200)
+      .then(({ body }) => {
+        expect(body.articles.length).toBe(13);
+        body.articles.forEach((article) => {
+          console.log(article);
+          expect(article).toEqual(
+            expect.objectContaining({
+              author: expect.any(String),
+              title: expect.any(String),
+              article_id: expect.any(Number),
+              topic: expect.any(String),
+              created_at: expect.any(String),
+              votes: expect.any(Number),
+              article_img_url: expect.any(String),
+              comment_count: expect.any(Number),
+            })
+          );
+        });
+      });
+  });
+  test("should return the articles in descending order of created_at", () => {
+    return request(app)
+      .get("/api/articles")
+      .expect(200)
+      .then(({ body }) => {
+        expect(body.articles).toBeSortedBy("created_at", { descending: true });
+      });
+  });
+});
