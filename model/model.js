@@ -16,7 +16,7 @@ exports.selectArticleById = (article_id) => {
           msg: "Article not found",
         });
       } else {
-        return rows;
+        return rows[0];
       }
     });
 };
@@ -53,5 +53,23 @@ exports.createComment = (article_id, username, body) => {
     )
     .then(({ rows }) => {
       return rows[0];
+    });
+};
+
+exports.changeArticle = (article_id, vote = 0) => {
+  return db
+    .query(
+      "UPDATE articles SET votes = votes + $1 WHERE articles.article_id = $2 RETURNING *;",
+      [vote, article_id]
+    )
+    .then(({ rows }) => {
+      if (rows.length === 0) {
+        return Promise.reject({
+          status: 404,
+          msg: "Path not found",
+        });
+      } else {
+        return rows[0];
+      }
     });
 };
