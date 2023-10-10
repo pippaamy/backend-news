@@ -57,20 +57,18 @@ describe("GET api/articles/:article_id", () => {
       .get("/api/articles/1")
       .expect(200)
       .then(({ body }) => {
-        body.article.forEach((article) => {
-          expect(article).toEqual(
-            expect.objectContaining({
-              author: expect.any(String),
-              title: expect.any(String),
-              article_id: 1,
-              body: expect.any(String),
-              topic: expect.any(String),
-              created_at: expect.any(String),
-              votes: expect.any(Number),
-              article_img_url: expect.any(String),
-            })
-          );
-        });
+        expect(body.article).toEqual(
+          expect.objectContaining({
+            author: expect.any(String),
+            title: expect.any(String),
+            article_id: 1,
+            body: expect.any(String),
+            topic: expect.any(String),
+            created_at: expect.any(String),
+            votes: expect.any(Number),
+            article_img_url: expect.any(String),
+          })
+        );
       });
   });
   test("should return a 400 if invalid id used", () => {
@@ -253,6 +251,102 @@ describe("POST /api/articles/article:id/comments", () => {
       .expect(404)
       .then(({ body }) => {
         expect(body.msg).toBe("Path not found");
+      });
+  });
+});
+
+describe("PATCH /api/articles/:article_id", () => {
+  test("should increment vote up by 1", () => {
+    const vote = { inc_votes: 1 };
+    return request(app)
+      .patch("/api/articles/1")
+      .send(vote)
+      .expect(200)
+      .then(({ body }) => {
+        expect(body.article).toEqual(
+          expect.objectContaining({
+            author: expect.any(String),
+            title: expect.any(String),
+            article_id: 1,
+            body: expect.any(String),
+            topic: expect.any(String),
+            created_at: expect.any(String),
+            votes: 101,
+            article_img_url: expect.any(String),
+          })
+        );
+      });
+  });
+  test("should increment vote down by 1", () => {
+    const vote = { inc_votes: -1 };
+    return request(app)
+      .patch("/api/articles/1")
+      .send(vote)
+      .expect(200)
+      .then(({ body }) => {
+        expect(body.article).toEqual(
+          expect.objectContaining({
+            author: expect.any(String),
+            title: expect.any(String),
+            article_id: 1,
+            body: expect.any(String),
+            topic: expect.any(String),
+            created_at: expect.any(String),
+            votes: 99,
+            article_img_url: expect.any(String),
+          })
+        );
+      });
+  });
+  test("should give 404 when non-existant id", () => {
+    const vote = { inc_votes: 1 };
+    return request(app)
+      .patch("/api/articles/1000")
+      .send(vote)
+      .expect(404)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Path not found");
+      });
+  });
+  test("should give 400 when invalid id", () => {
+    const vote = { inc_votes: 1 };
+    return request(app)
+      .patch("/api/articles/banana")
+      .send(vote)
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Bad Request");
+      });
+  });
+  test("should give 400 when inc_votes is not a number", () => {
+    const vote = { inc_votes: "hello" };
+    return request(app)
+      .patch("/api/articles/1")
+      .send(vote)
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Bad Request");
+      });
+  });
+  test("should give 200 when missing fields", () => {
+    const vote = {};
+    return request(app)
+      .patch("/api/articles/1")
+      .send(vote)
+      .expect(200)
+      .then(({ body }) => {
+        expect(body.article).toEqual(
+          expect.objectContaining({
+            author: expect.any(String),
+            title: expect.any(String),
+            article_id: 1,
+            body: expect.any(String),
+            topic: expect.any(String),
+            created_at: expect.any(String),
+            votes: 100,
+            article_img_url: expect.any(String),
+          })
+        );
       });
   });
 });
