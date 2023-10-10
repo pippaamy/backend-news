@@ -5,6 +5,7 @@ const {
   selectComments,
   createComment,
   changeArticle,
+  removeComment,
 } = require("../model/model");
 const endpoints = require("../endpoints.json");
 
@@ -64,6 +65,15 @@ exports.patchArticle = (req, res, next) => {
   changeArticle(article_id, vote)
     .then((article) => {
       res.status(200).send({ article });
+    })
+    .catch(next);
+};
+
+exports.deleteComment = (req, res, next) => {
+  const { comment_id } = req.params;
+  removeComment(comment_id)
+    .then(() => {
+      res.status(204).send({});
     })
     .catch(next);
 };
