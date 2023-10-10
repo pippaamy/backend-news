@@ -7,6 +7,7 @@ const {
   getComments,
   postComment,
   patchArticle,
+  deleteComment,
 } = require("./controller/controller");
 const app = express();
 
@@ -26,6 +27,8 @@ app.post("/api/articles/:articles_id/comments", postComment);
 
 app.patch("/api/articles/:article_id", patchArticle);
 
+app.delete("/api/comments/:comment_id", deleteComment);
+
 app.use((err, req, res, next) => {
   if (err.status && err.msg) {
     res.status(err.status).send({ msg: err.msg });
@@ -35,7 +38,6 @@ app.use((err, req, res, next) => {
 
 app.use((err, req, res, next) => {
   if (err.code === "22P02") {
-    console.log("here");
     res.status(400).send({ msg: "Bad Request" });
   }
   next(err);
