@@ -372,3 +372,23 @@ describe("DELETE /api/comments/:comment_id", () => {
       });
   });
 });
+
+describe("GET users", () => {
+  test("should return a 200 and return users ", () => {
+    return request(app)
+      .get("/api/users")
+      .expect(200)
+      .then(({ body }) => {
+        expect(body.users.length).toBe(4);
+        body.users.forEach((user) => {
+          expect(user).toEqual(
+            expect.objectContaining({
+              username: expect.any(String),
+              name: expect.any(String),
+              avatar_url: expect.any(String),
+            })
+          );
+        });
+      });
+  });
+});
