@@ -9,6 +9,7 @@ const {
   fetchUsers,
 } = require("../model/model");
 const endpoints = require("../endpoints.json");
+const { checkExists } = require("../db/seeds/utils");
 
 exports.getTopics = (req, res) => {
   selectTopics().then((topics) => {
@@ -31,10 +32,19 @@ exports.getArticleById = (req, res, next) => {
     });
 };
 
-exports.getArticles = (req, res) => {
-  selectArticles().then((articles) => {
-    res.status(200).send({ articles });
-  });
+exports.getArticles = (req, res, next) => {
+  const { topic } = req.query;
+  if (topic) {
+    Promise.all([checkExists(topic), selectArticles(topic)])
+      .then(([check, articles]) => {
+        res.status(200).send({ articles });
+      })
+      .catch(next);
+  } else {
+    selectArticles(topic).then((articles) => {
+      res.status(200).send({ articles });
+    });
+  }
 };
 
 exports.getComments = (req, res, next) => {
