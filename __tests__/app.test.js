@@ -424,3 +424,27 @@ describe("GET /api/articles topic query", () => {
       });
   });
 });
+
+describe("GET /api/articles/:article_id should contain comment count", () => {
+  test("should include comment count property ", () => {
+    return request(app)
+      .get("/api/articles/1")
+      .expect(200)
+      .then(({ body }) => {
+        console.log(body.article);
+        expect(body.article).toEqual(
+          expect.objectContaining({
+            author: expect.any(String),
+            title: expect.any(String),
+            article_id: 1,
+            body: expect.any(String),
+            topic: expect.any(String),
+            created_at: expect.any(String),
+            votes: expect.any(Number),
+            article_img_url: expect.any(String),
+            comment_count: expect.any(String),
+          })
+        );
+      });
+  });
+});
