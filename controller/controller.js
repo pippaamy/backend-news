@@ -34,16 +34,20 @@ exports.getArticleById = (req, res, next) => {
 
 exports.getArticles = (req, res, next) => {
   const { topic } = req.query;
+  const { order } = req.query;
+  const { sort_by } = req.query;
   if (topic) {
-    Promise.all([checkExists(topic), selectArticles(topic)])
+    Promise.all([checkExists(topic), selectArticles(topic, order, sort_by)])
       .then(([check, articles]) => {
         res.status(200).send({ articles });
       })
       .catch(next);
   } else {
-    selectArticles(topic).then((articles) => {
-      res.status(200).send({ articles });
-    });
+    selectArticles(topic, order, sort_by)
+      .then((articles) => {
+        res.status(200).send({ articles });
+      })
+      .catch(next);
   }
 };
 

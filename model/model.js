@@ -24,9 +24,17 @@ exports.selectArticleById = (article_id) => {
     });
 };
 
-exports.selectArticles = (topic) => {
+exports.selectArticles = (topic, order = "desc", sort_by = "created_at") => {
   let queryStr = "";
   let value = [];
+  const orderValues = ["ASC", "DESC", "asc", "desc"];
+  const sortValues = ["created_at", "votes", "article_id", "author", "title"];
+  if (!orderValues.includes(order) || !sortValues.includes(sort_by)) {
+    return Promise.reject({
+      status: 404,
+      msg: "Path not found",
+    });
+  }
 
   if (topic) {
     queryStr += "WHERE topic = $1";
@@ -34,7 +42,7 @@ exports.selectArticles = (topic) => {
   }
   return db
     .query(
-      `SELECT articles.title,articles.article_id,articles.author, articles.topic, articles.created_at, articles.votes, articles.article_img_url,CAST(COUNT(comment_id)AS INT) AS comment_count FROM articles LEFT JOIN comments ON  comments.article_id = articles.article_id ${queryStr} GROUP BY articles.article_id ORDER BY articles.created_at DESC;`,
+      `SELECT articles.title,articles.article_id,articles.author, articles.topic, articles.created_at, articles.votes, articles.article_img_url,CAST(COUNT(comment_id)AS INT) AS comment_count FROM articles LEFT JOIN comments ON  comments.article_id = articles.article_id ${queryStr} GROUP BY articles.article_id ORDER BY ${sort_by} ${order};`,
       value
     )
     .then(({ rows }) => {
