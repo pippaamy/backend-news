@@ -431,7 +431,6 @@ describe("GET /api/articles/:article_id should contain comment count", () => {
       .get("/api/articles/1")
       .expect(200)
       .then(({ body }) => {
-        console.log(body.article);
         expect(body.article).toEqual(
           expect.objectContaining({
             author: expect.any(String),
@@ -445,6 +444,61 @@ describe("GET /api/articles/:article_id should contain comment count", () => {
             comment_count: expect.any(String),
           })
         );
+      });
+  });
+});
+
+describe("GET /api/articles sorting queries", () => {
+  test("should order by asc when inputted ", () => {
+    return request(app)
+      .get("/api/articles?order=asc")
+      .expect(200)
+      .then(({ body }) => {
+        expect(body.articles).toBeSortedBy("created_at", { descending: false });
+      });
+  });
+  test("should sort by votes when inputted ", () => {
+    return request(app)
+      .get("/api/articles?sort_by=votes")
+      .expect(200)
+      .then(({ body }) => {
+        expect(body.articles).toBeSortedBy("votes", { descending: true });
+      });
+  });
+  test("should sort by votes and order asc when inputted ", () => {
+    return request(app)
+      .get("/api/articles?sort_by=votes&order=asc")
+      .expect(200)
+      .then(({ body }) => {
+        expect(body.articles).toBeSortedBy("votes", { descending: false });
+      });
+  });
+  test("should sort by votes and order asc  and topic when inputted  ", () => {
+    return request(app)
+      .get("/api/articles?sort_by=votes&order=asc&topic=mitch")
+      .expect(200)
+      .then(({ body }) => {
+        expect(body.articles).toBeSortedBy("votes", { descending: false });
+        expect(body.articles.length).toBe(12);
+        body.articles.forEach((article) => {
+          expect(article.topic).toBe("mitch");
+        });
+      });
+  });
+  test("should return 404 when invalid sort_by ", () => {
+    return request(app)
+      .get("/api/articles?sort_by=bananas")
+      .expect(404)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Path not found");
+      });
+  });
+  test("should return 404 when invalid order ", () => {
+    return request(app)
+      .get("/api/articles?order=bananas")
+      .expect(404)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Path not found");
       });
   });
 });
