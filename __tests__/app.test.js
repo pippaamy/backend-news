@@ -502,3 +502,28 @@ describe("GET /api/articles sorting queries", () => {
       });
   });
 });
+
+describe("GET /api/users/:username", () => {
+  test("should return username, name and avatar_url ", () => {
+    return request(app)
+      .get("/api/users/lurker")
+      .expect(200)
+      .then(({ body }) => {
+        expect(body.user).toEqual(
+          expect.objectContaining({
+            username: expect.any(String),
+            name: expect.any(String),
+            avatar_url: expect.any(String),
+          })
+        );
+      });
+  });
+  test("should return 404 if non existant user ", () => {
+    return request(app)
+      .get("/api/users/pipsqueak")
+      .expect(404)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Path not found");
+      });
+  });
+});
