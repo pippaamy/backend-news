@@ -1,36 +1,11 @@
 const express = require("express");
-const {
-  getTopics,
-  getApi,
-  getArticleById,
-  getArticles,
-  getComments,
-  postComment,
-  patchArticle,
-  deleteComment,
-  getUsers,
-} = require("./controller/controller");
-const app = express();
 
+const app = express();
 app.use(express.json());
 
-app.get("/api/topics", getTopics);
+const apiRouter = require("./routes/api-router.js");
 
-app.get("/api", getApi);
-
-app.get("/api/articles/:article_id", getArticleById);
-
-app.get("/api/articles", getArticles);
-
-app.get("/api/articles/:article_id/comments", getComments);
-
-app.post("/api/articles/:articles_id/comments", postComment);
-
-app.patch("/api/articles/:article_id", patchArticle);
-
-app.delete("/api/comments/:comment_id", deleteComment);
-
-app.get("/api/users", getUsers);
+app.use("/api", apiRouter);
 
 app.use((err, req, res, next) => {
   if (err.status && err.msg) {

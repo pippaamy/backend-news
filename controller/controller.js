@@ -63,10 +63,10 @@ exports.getComments = (req, res, next) => {
 };
 
 exports.postComment = (req, res, next) => {
-  const { articles_id } = req.params;
+  const { article_id } = req.params;
   const { username } = req.body;
   const { body } = req.body;
-  createComment(articles_id, username, body)
+  createComment(article_id, username, body)
     .then((newComment) => {
       res.status(201).send({ newComment });
     })
