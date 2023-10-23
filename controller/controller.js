@@ -8,6 +8,7 @@ const {
   removeComment,
   fetchUsers,
   fetchUserByUsername,
+  changeComment,
 } = require("../model/model");
 const endpoints = require("../endpoints.json");
 const { checkExists } = require("../db/seeds/utils");
@@ -105,6 +106,16 @@ exports.getUserByUsername = (req, res, next) => {
   fetchUserByUsername(username)
     .then((user) => {
       res.status(200).send({ user });
+    })
+    .catch(next);
+};
+
+exports.patchComment = (req, res, next) => {
+  const { comment_id } = req.params;
+  const vote = req.body.inc_votes;
+  changeComment(comment_id, vote)
+    .then((comment) => {
+      res.status(200).send({ comment });
     })
     .catch(next);
 };

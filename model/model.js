@@ -127,3 +127,21 @@ exports.fetchUserByUsername = (username) => {
       return rows[0];
     });
 };
+
+exports.changeComment = (comment_id, vote = 0) => {
+  return db
+    .query(
+      "UPDATE comments SET votes = votes + $1 WHERE comments.comment_id = $2 RETURNING *;",
+      [vote, comment_id]
+    )
+    .then(({ rows }) => {
+      if (rows.length === 0) {
+        return Promise.reject({
+          status: 404,
+          msg: "Path not found",
+        });
+      } else {
+        return rows[0];
+      }
+    });
+};

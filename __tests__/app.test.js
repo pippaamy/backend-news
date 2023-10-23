@@ -504,7 +504,7 @@ describe("GET /api/articles sorting queries", () => {
 });
 
 describe("GET /api/users/:username", () => {
-  test("should return username, name and avatar_url ", () => {
+  test("should return a 200 & username, name and avatar_url ", () => {
     return request(app)
       .get("/api/users/lurker")
       .expect(200)
@@ -524,6 +524,96 @@ describe("GET /api/users/:username", () => {
       .expect(404)
       .then(({ body }) => {
         expect(body.msg).toBe("Path not found");
+      });
+  });
+});
+
+describe("PATCH /api/comments/:comment_id", () => {
+  test("should return a 200 & increment vote by 1", () => {
+    const vote = { inc_votes: 1 };
+    return request(app)
+      .patch("/api/comments/1")
+      .send(vote)
+      .expect(200)
+      .then(({ body }) => {
+        expect(body.comment).toEqual(
+          expect.objectContaining({
+            comment_id: 1,
+            body: expect.any(String),
+            article_id: expect.any(Number),
+            author: expect.any(String),
+            votes: 17,
+            created_at: expect.any(String),
+          })
+        );
+      });
+  });
+  test("should increment vote down by 1", () => {
+    const vote = { inc_votes: -1 };
+    return request(app)
+      .patch("/api/comments/1")
+      .send(vote)
+      .expect(200)
+      .then(({ body }) => {
+        expect(body.comment).toEqual(
+          expect.objectContaining({
+            comment_id: 1,
+            body: expect.any(String),
+            article_id: expect.any(Number),
+            author: expect.any(String),
+            votes: 15,
+            created_at: expect.any(String),
+          })
+        );
+      });
+  });
+  test("should give 404 when non-existant id", () => {
+    const vote = { inc_votes: 1 };
+    return request(app)
+      .patch("/api/comments/1000")
+      .send(vote)
+      .expect(404)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Path not found");
+      });
+  });
+  test("should give 400 when invalid id", () => {
+    const vote = { inc_votes: 1 };
+    return request(app)
+      .patch("/api/comments/banana")
+      .send(vote)
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Bad Request");
+      });
+  });
+  test("should give 400 when inc_votes is not a number", () => {
+    const vote = { inc_votes: "hello" };
+    return request(app)
+      .patch("/api/comments/1")
+      .send(vote)
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Bad Request");
+      });
+  });
+  test("should give 200 when missing fields", () => {
+    const vote = {};
+    return request(app)
+      .patch("/api/comments/1")
+      .send(vote)
+      .expect(200)
+      .then(({ body }) => {
+        expect(body.comment).toEqual(
+          expect.objectContaining({
+            comment_id: 1,
+            body: expect.any(String),
+            article_id: expect.any(Number),
+            author: expect.any(String),
+            votes: 16,
+            created_at: expect.any(String),
+          })
+        );
       });
   });
 });
