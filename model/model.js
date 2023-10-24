@@ -145,3 +145,20 @@ exports.changeComment = (comment_id, vote = 0) => {
       }
     });
 };
+
+exports.createArticle = (author, title, body, topic, article_img_url) => {
+  if (!author || !title || !body || !topic || !article_img_url) {
+    return Promise.reject({
+      status: 400,
+      msg: "Bad Request",
+    });
+  }
+  return db
+    .query(
+      "INSERT INTO articles (author, title, body, topic, article_img_url) VALUES ( $1, $2, $3, $4, $5) RETURNING *;",
+      [author, title, body, topic, article_img_url]
+    )
+    .then(({ rows }) => {
+      return rows[0];
+    });
+};

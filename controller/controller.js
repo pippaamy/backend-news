@@ -9,6 +9,7 @@ const {
   fetchUsers,
   fetchUserByUsername,
   changeComment,
+  createArticle,
 } = require("../model/model");
 const endpoints = require("../endpoints.json");
 const { checkExists } = require("../db/seeds/utils");
@@ -116,6 +117,19 @@ exports.patchComment = (req, res, next) => {
   changeComment(comment_id, vote)
     .then((comment) => {
       res.status(200).send({ comment });
+    })
+    .catch(next);
+};
+
+exports.postArticle = (req, res, next) => {
+  const { author } = req.body;
+  const { title } = req.body;
+  const { body } = req.body;
+  const { topic } = req.body;
+  const { article_img_url } = req.body;
+  createArticle(author, title, body, topic, article_img_url)
+    .then((newArticle) => {
+      res.status(201).send({ newArticle });
     })
     .catch(next);
 };
