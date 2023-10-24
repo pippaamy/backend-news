@@ -617,3 +617,98 @@ describe("PATCH /api/comments/:comment_id", () => {
       });
   });
 });
+
+describe("POST /api/articles", () => {
+  test("should return a 201 and the posted comment", () => {
+    const newArticle = {
+      author: "lurker",
+      title: "cutest doggo",
+      body: "cutest dog award goes to Evie Pom",
+      topic: "paper",
+      article_img_url:
+        " https://encrypted-tbn0.gstatic.com/licensed-image?q=tbn:ANd9GcTqL8dZFRCZrk31Jzz3ie-6IAVhlllKawlX5cwWdkdbuWH7KygHS_EWX0lqVS1s0oTggzXo4v0yV_pOQ2A",
+    };
+    return request(app)
+      .post("/api/articles")
+      .send(newArticle)
+      .expect(201)
+      .then(({ body }) => {
+        expect(body.newArticle).toEqual(
+          expect.objectContaining({
+            author: "lurker",
+            title: "cutest doggo",
+            body: "cutest dog award goes to Evie Pom",
+            topic: "paper",
+            votes: 0,
+            article_img_url:
+              " https://encrypted-tbn0.gstatic.com/licensed-image?q=tbn:ANd9GcTqL8dZFRCZrk31Jzz3ie-6IAVhlllKawlX5cwWdkdbuWH7KygHS_EWX0lqVS1s0oTggzXo4v0yV_pOQ2A",
+            article_id: expect.any(Number),
+            created_at: expect.any(String),
+          })
+        );
+      });
+  });
+  test("should return a 201 ignore unneccesary properties ", () => {
+    const newArticle = {
+      cutestLevel: "1000",
+      author: "lurker",
+      title: "cutest doggo",
+      body: "cutest dog award goes to Evie Pom",
+      topic: "paper",
+      article_img_url:
+        " https://encrypted-tbn0.gstatic.com/licensed-image?q=tbn:ANd9GcTqL8dZFRCZrk31Jzz3ie-6IAVhlllKawlX5cwWdkdbuWH7KygHS_EWX0lqVS1s0oTggzXo4v0yV_pOQ2A",
+    };
+    return request(app)
+      .post("/api/articles")
+      .send(newArticle)
+      .expect(201)
+      .then(({ body }) => {
+        expect(body.newArticle).toEqual(
+          expect.objectContaining({
+            author: "lurker",
+            title: "cutest doggo",
+            body: "cutest dog award goes to Evie Pom",
+            topic: "paper",
+            votes: 0,
+            article_img_url:
+              " https://encrypted-tbn0.gstatic.com/licensed-image?q=tbn:ANd9GcTqL8dZFRCZrk31Jzz3ie-6IAVhlllKawlX5cwWdkdbuWH7KygHS_EWX0lqVS1s0oTggzXo4v0yV_pOQ2A",
+            article_id: expect.any(Number),
+            created_at: expect.any(String),
+          })
+        );
+      });
+  });
+  test("should return a 400 if missing field", () => {
+    const newArticle = {
+      author: "lurker",
+      body: "cutest dog award goes to Evie Pom",
+      topic: "paper",
+      article_img_url:
+        " https://encrypted-tbn0.gstatic.com/licensed-image?q=tbn:ANd9GcTqL8dZFRCZrk31Jzz3ie-6IAVhlllKawlX5cwWdkdbuWH7KygHS_EWX0lqVS1s0oTggzXo4v0yV_pOQ2A",
+    };
+    return request(app)
+      .post("/api/articles")
+      .send(newArticle)
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Bad Request");
+      });
+  });
+  test("should return a 404 if an invalid username used", () => {
+    const newArticle = {
+      author: "pippa",
+      title: "cutest doggo",
+      body: "cutest dog award goes to Evie Pom",
+      topic: "paper",
+      article_img_url:
+        " https://encrypted-tbn0.gstatic.com/licensed-image?q=tbn:ANd9GcTqL8dZFRCZrk31Jzz3ie-6IAVhlllKawlX5cwWdkdbuWH7KygHS_EWX0lqVS1s0oTggzXo4v0yV_pOQ2A",
+    };
+    return request(app)
+      .post("/api/articles")
+      .send(newArticle)
+      .expect(404)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Path not found");
+      });
+  });
+});
