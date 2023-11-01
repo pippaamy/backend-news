@@ -10,6 +10,7 @@ const {
   fetchUserByUsername,
   changeComment,
   createArticle,
+  addTopic,
 } = require("../model/model");
 const endpoints = require("../endpoints.json");
 const { checkExists } = require("../db/seeds/utils");
@@ -138,6 +139,16 @@ exports.postArticle = (req, res, next) => {
   createArticle(author, title, body, topic, article_img_url)
     .then((newArticle) => {
       res.status(201).send({ newArticle });
+    })
+    .catch(next);
+};
+
+exports.postTopic = (req, res, next) => {
+  const { slug } = req.body;
+  const { description } = req.body;
+  addTopic(slug, description)
+    .then((newTopic) => {
+      res.status(201).send({ newTopic });
     })
     .catch(next);
 };

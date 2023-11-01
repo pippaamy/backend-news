@@ -835,3 +835,56 @@ describe("GET api/articles:article_id/comments (Pagination)", () => {
       });
   });
 });
+
+describe("POST api/topics", () => {
+  test("should return a 201 a new topic", () => {
+    const topic = {
+      description: "everything you need to know about dogs",
+      slug: "dogs",
+    };
+    return request(app)
+      .post("/api/topics")
+      .send(topic)
+      .expect(201)
+      .then(({ body }) => {
+        expect(body.newTopic).toEqual(
+          expect.objectContaining({
+            description: "everything you need to know about dogs",
+            slug: "dogs",
+          })
+        );
+      });
+  });
+
+  test("should return a 201 and ignore unnecessary properties ", () => {
+    const topic = {
+      description: "everything you need to know about dogs",
+      slug: "dogs",
+      favFood: "cheetos",
+    };
+    return request(app)
+      .post("/api/topics")
+      .send(topic)
+      .expect(201)
+      .then(({ body }) => {
+        expect(body.newTopic).toEqual(
+          expect.objectContaining({
+            description: "everything you need to know about dogs",
+            slug: "dogs",
+          })
+        );
+      });
+  });
+  test(" should return a 400 if property is missing", () => {
+    const topic = {
+      description: "everything you need to know about dogs",
+    };
+    return request(app)
+      .post("/api/topics")
+      .send(topic)
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Bad Request");
+      });
+  });
+});
