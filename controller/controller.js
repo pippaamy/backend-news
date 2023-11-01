@@ -62,7 +62,9 @@ exports.getArticles = (req, res, next) => {
 
 exports.getComments = (req, res, next) => {
   const { article_id } = req.params;
-  const commentPromise = selectComments(article_id);
+  const { limit } = req.query;
+  const pageNum = req.query.p;
+  const commentPromise = selectComments(article_id, pageNum, limit);
   const articlePromise = selectArticleById(article_id);
   Promise.all([articlePromise, commentPromise])
     .then(([articlePromise, comments]) => {

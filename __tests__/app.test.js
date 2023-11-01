@@ -128,7 +128,7 @@ describe("GET /api/articles/:article_id/comments", () => {
       .get("/api/articles/1/comments")
       .expect(200)
       .then(({ body }) => {
-        expect(body.comments.length).toBe(11);
+        expect(body.comments.length).toBe(10);
         body.comments.forEach((comment) => {
           expect(comment).toEqual(
             expect.objectContaining({
@@ -738,6 +738,14 @@ describe("GET api/articles (Pagination)", () => {
         expect(body.articles).toHaveLength(2);
       });
   });
+  test("should default to return page 1 with 10 articles ", () => {
+    return request(app)
+      .get("/api/articles")
+      .expect(200)
+      .then(({ body }) => {
+        expect(body.articles).toHaveLength(10);
+      });
+  });
   test("should return page 1 with 2 articles when given a topic ", () => {
     return request(app)
       .get("/api/articles?p=1&limit=2&topic=mitch")
@@ -772,6 +780,58 @@ describe("GET api/articles (Pagination)", () => {
           expect(article).toHaveProperty("total_count");
           expect(article.total_count).toBe(13);
         });
+      });
+  });
+});
+
+describe("GET api/articles:article_id/comments (Pagination)", () => {
+  test("should return page 1 with 10 comments ", () => {
+    return request(app)
+      .get("/api/articles/1/comments?p=1&limit=10")
+      .expect(200)
+      .then(({ body }) => {
+        expect(body.comments).toHaveLength(10);
+      });
+  });
+  test("should default to page 1 with 10 comments limit ", () => {
+    return request(app)
+      .get("/api/articles/1/comments")
+      .expect(200)
+      .then(({ body }) => {
+        expect(body.comments).toHaveLength(10);
+      });
+  });
+  test("should return page 2 with leftover comments ", () => {
+    return request(app)
+      .get("/api/articles/1/comments?p=2&limit=10")
+      .expect(200)
+      .then(({ body }) => {
+        expect(body.comments).toHaveLength(1);
+      });
+  });
+  test("should return page 1 with 2 comments when limited to 2 ", () => {
+    return request(app)
+      .get("/api/articles/1/comments?p=1&limit=2")
+      .expect(200)
+      .then(({ body }) => {
+        expect(body.comments).toHaveLength(2);
+      });
+  });
+
+  test("should return 400 when given an invalid page num ", () => {
+    return request(app)
+      .get("/api/articles/1/comments?p=hello")
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Bad request");
+      });
+  });
+  test("should return 400 when given an invalid limit ", () => {
+    return request(app)
+      .get("/api/articles/1/comments?limit=hello")
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Bad request");
       });
   });
 });
