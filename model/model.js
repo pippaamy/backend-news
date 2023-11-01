@@ -1,3 +1,4 @@
+const { off } = require("../app");
 const db = require("../db/connection");
 
 exports.selectTopics = () => {
@@ -24,7 +25,24 @@ exports.selectArticleById = (article_id) => {
     });
 };
 
-exports.selectArticles = (topic, order = "desc", sort_by = "created_at") => {
+exports.selectArticles = (
+  topic,
+  order = "desc",
+  sort_by = "created_at",
+  pageNum = 1,
+  limit = 10
+) => {
+  if (pageNum % 1 !== 0 || limit % 1 !== 0) {
+    return Promise.reject({
+      status: 400,
+      msg: "Bad request",
+    });
+  }
+  let offset = 0;
+
+  if (pageNum > 1) {
+    offset = limit * pageNum - limit;
+  }
   let queryStr = "";
   let value = [];
   const orderValues = ["ASC", "DESC", "asc", "desc"];
@@ -40,14 +58,21 @@ exports.selectArticles = (topic, order = "desc", sort_by = "created_at") => {
     queryStr += "WHERE topic = $1";
     value.push(topic);
   }
-  return db
-    .query(
-      `SELECT articles.title,articles.article_id,articles.author, articles.topic, articles.created_at, articles.votes, articles.article_img_url,CAST(COUNT(comment_id)AS INT) AS comment_count FROM articles LEFT JOIN comments ON  comments.article_id = articles.article_id ${queryStr} GROUP BY articles.article_id ORDER BY ${sort_by} ${order};`,
-      value
-    )
-    .then(({ rows }) => {
-      return rows;
-    });
+
+  return db.query(" SELECT * FROM articles;").then(({ rows }) => {
+    total = rows.length;
+    return db
+      .query(
+        `SELECT articles.title,articles.article_id,articles.author, articles.topic, articles.created_at, articles.votes, articles.article_img_url, CAST(COUNT(comment_id)AS INT) AS comment_count FROM articles LEFT JOIN comments ON  comments.article_id = articles.article_id ${queryStr} GROUP BY articles.article_id ORDER BY ${sort_by} ${order} LIMIT ${limit} OFFSET ${offset} `,
+        value
+      )
+      .then(({ rows }) => {
+        return (result = rows.map((obj) => {
+          obj.total_count = total;
+          return obj;
+        }));
+      });
+  });
 };
 
 exports.selectComments = (article_id) => {
