@@ -172,5 +172,15 @@
         "comment_count": 6
       }
     }
+  },
+  "POST /api/topics": {
+    "description": "add a new topic",
+    "queries": [],
+    "exampleResponse": {
+      "newTopic": {
+        "slug": "cheese",
+        "description": "everything you would want to know about cheese"
+      }
+    }
   }
 }
