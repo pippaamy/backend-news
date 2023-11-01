@@ -75,9 +75,23 @@ exports.selectArticles = (
   });
 };
 
-exports.selectComments = (article_id) => {
+exports.selectComments = (article_id, pageNum = 1, limit = 10) => {
+  if (pageNum % 1 !== 0 || limit % 1 !== 0) {
+    return Promise.reject({
+      status: 400,
+      msg: "Bad request",
+    });
+  }
+  let offset = 0;
+
+  if (pageNum > 1) {
+    offset = limit * pageNum - limit;
+  }
   return db
-    .query("SELECT * FROM comments WHERE article_id = $1", [article_id])
+    .query(
+      `SELECT * FROM comments WHERE article_id = $1 LIMIT ${limit} OFFSET ${offset};`,
+      [article_id]
+    )
     .then(({ rows }) => {
       return rows;
     });
