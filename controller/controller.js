@@ -39,14 +39,20 @@ exports.getArticles = (req, res, next) => {
   const { topic } = req.query;
   const { order } = req.query;
   const { sort_by } = req.query;
+  const pageNum = req.query.p;
+  const { limit } = req.query;
+
   if (topic) {
-    Promise.all([checkExists(topic), selectArticles(topic, order, sort_by)])
+    Promise.all([
+      checkExists(topic),
+      selectArticles(topic, order, sort_by, pageNum, limit),
+    ])
       .then(([check, articles]) => {
         res.status(200).send({ articles });
       })
       .catch(next);
   } else {
-    selectArticles(topic, order, sort_by)
+    selectArticles(topic, order, sort_by, pageNum, limit)
       .then((articles) => {
         res.status(200).send({ articles });
       })

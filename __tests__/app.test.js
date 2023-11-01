@@ -95,7 +95,7 @@ describe("GET /api/articles", () => {
       .get("/api/articles")
       .expect(200)
       .then(({ body }) => {
-        expect(body.articles.length).toBe(13);
+        expect(body.articles.length).toBe(10);
         body.articles.forEach((article) => {
           expect(article).toEqual(
             expect.objectContaining({
@@ -400,7 +400,7 @@ describe("GET /api/articles topic query", () => {
       .expect(200)
       .then(({ body }) => {
         expect(body.articles).toBeSortedBy("created_at", { descending: true });
-        expect(body.articles.length).toBe(12);
+        expect(body.articles.length).toBe(10);
         body.articles.forEach((article) => {
           expect(article.topic).toBe("mitch");
         });
@@ -479,7 +479,7 @@ describe("GET /api/articles sorting queries", () => {
       .expect(200)
       .then(({ body }) => {
         expect(body.articles).toBeSortedBy("votes", { descending: false });
-        expect(body.articles.length).toBe(12);
+        expect(body.articles.length).toBe(10);
         body.articles.forEach((article) => {
           expect(article.topic).toBe("mitch");
         });
@@ -709,6 +709,69 @@ describe("POST /api/articles", () => {
       .expect(404)
       .then(({ body }) => {
         expect(body.msg).toBe("Path not found");
+      });
+  });
+});
+
+describe("GET api/articles (Pagination)", () => {
+  test("should return page 1 with 10 articles ", () => {
+    return request(app)
+      .get("/api/articles?p=1&limit=10")
+      .expect(200)
+      .then(({ body }) => {
+        expect(body.articles).toHaveLength(10);
+      });
+  });
+  test("should return page 2 with 3 articles ", () => {
+    return request(app)
+      .get("/api/articles?p=2&limit=10")
+      .expect(200)
+      .then(({ body }) => {
+        expect(body.articles).toHaveLength(3);
+      });
+  });
+  test("should return page 1 with 2 articles when given limit of 2 ", () => {
+    return request(app)
+      .get("/api/articles?p=1&limit=2")
+      .expect(200)
+      .then(({ body }) => {
+        expect(body.articles).toHaveLength(2);
+      });
+  });
+  test("should return page 1 with 2 articles when given a topic ", () => {
+    return request(app)
+      .get("/api/articles?p=1&limit=2&topic=mitch")
+      .expect(200)
+      .then(({ body }) => {
+        expect(body.articles).toHaveLength(2);
+      });
+  });
+  test("should return 400 when given an invalid page num ", () => {
+    return request(app)
+      .get("/api/articles?p=hello")
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Bad request");
+      });
+  });
+  test("should return 400 when given an invalid limit ", () => {
+    return request(app)
+      .get("/api/articles?limit=hello")
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Bad request");
+      });
+  });
+  test("should have property total_count ", () => {
+    return request(app)
+      .get("/api/articles?p=1&limit=2")
+      .expect(200)
+      .then(({ body }) => {
+        expect(body.articles).toHaveLength(2);
+        body.articles.forEach((article) => {
+          expect(article).toHaveProperty("total_count");
+          expect(article.total_count).toBe(13);
+        });
       });
   });
 });
