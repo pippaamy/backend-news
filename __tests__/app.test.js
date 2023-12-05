@@ -888,3 +888,25 @@ describe("POST api/topics", () => {
       });
   });
 });
+
+describe("DELETE /api/articles/:article_id", () => {
+  test("should return a 204 when delete is successful", () => {
+    return request(app).delete("/api/articles/2").expect(204);
+  });
+  test("should return a 404 when id is non existant ", () => {
+    return request(app)
+      .delete("/api/articles/303030")
+      .expect(404)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Path not found");
+      });
+  });
+  test("should return a 400 when id is not valid ", () => {
+    return request(app)
+      .delete("/api/articles/banana")
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Bad Request");
+      });
+  });
+});

@@ -2,7 +2,7 @@ const articlesRouter = require("./articles-router");
 const commentsRouter = require("./comments-router");
 const userRouter = require("./users-router");
 const topicsRouter = require("./topics-router");
-const { getApi } = require("../controller/controller");
+const { getApi } = require("../controller/api");
 
 const apiRouter = require("express").Router();
 
