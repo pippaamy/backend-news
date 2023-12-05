@@ -1,4 +1,4 @@
-const { getTopics, postTopic } = require("../controller/controller");
+const { getTopics, postTopic } = require("../controller/topics");
 
 const topicsRouter = require("express").Router();
 
